@@ -70,7 +70,7 @@ services:
     volumes:
       - /var/run/dbus:/var/run/dbus
 
-  frontend:
+  maxfrontend:
     image: getmaxun/maxun-frontend:latest
     #env_file: .env
     environment:
