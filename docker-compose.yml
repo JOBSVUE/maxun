@@ -74,6 +74,7 @@ services:
     image: getmaxun/maxun-frontend:latest
     #env_file: .env
     environment:
+      - SERVICE_URL_FRONTEND
       - SERVICE_FQDN_FRONTEND_5173
       - MINIO_ENDPOINT=minio
       - MINIO_PORT=${MINIO_PORT:-9000}
