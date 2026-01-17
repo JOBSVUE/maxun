@@ -6,7 +6,7 @@
 # repository: https://github.com/oregapam/awesome-coolify-service-templates
 
 services:
-  maxpostgres:
+  postgres:
     image: postgres:13
     environment:
       POSTGRES_USER: ${SERVICE_USER_POSTGRES}
@@ -22,7 +22,7 @@ services:
       timeout: 20s
       retries: 10
 
-  maxminio:
+  minio:
     image: minio/minio
     environment:
       MINIO_ROOT_USER: ${SERVICE_USER_MINIO}
@@ -31,12 +31,12 @@ services:
     volumes:
       - max_minio_data:/data
 
-  maxbackend:
+  backend:
     image: getmaxun/maxun-backend:latest
     #env_file: .env
     environment:
-      - SERVICE_FQDN_MAXBACKEND_8080
-      - MINIO_ENDPOINT=maxminio
+      - SERVICE_FQDN_BACKEND_8080
+      - MINIO_ENDPOINT=minio
       - MINIO_PORT=${MINIO_PORT:-9000}
       - MINIO_CONSOLE_PORT=${MINIO_CONSOLE_PORT:-9001}
       - MINIO_ACCESS_KEY=${SERVICE_USER_MINIO}
@@ -50,10 +50,10 @@ services:
       - DB_PASSWORD=${SERVICE_PASSWORD_POSTGRES}
       - DB_HOST=postgres
       - DB_PORT=5432
-      - PUBLIC_URL=$SERVICE_FQDN_MAXFRONTEND
-      - BACKEND_URL=$SERVICE_FQDN_MAXBACKEND
-      - VITE_BACKEND_URL=$SERVICE_FQDN_MAXBACKEND
-      - VITE_PUBLIC_URL=$SERVICE_FQDN_MAXFRONTEND
+      - PUBLIC_URL=$SERVICE_FQDN_FRONTEND
+      - BACKEND_URL=$SERVICE_FQDN_BACKEND
+      - VITE_BACKEND_URL=$SERVICE_FQDN_BACKEND
+      - VITE_PUBLIC_URL=$SERVICE_FQDN_FRONTEND
       - PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
       - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=0
       - CHROMIUM_FLAGS='--disable-gpu --no-sandbox --headless=new'
@@ -65,17 +65,17 @@ services:
     shm_size: '8gb' # Increase shared memory size for Chromium
     mem_limit: 8g   # Set a 8GB memory limit
     depends_on:
-      - maxpostgres
-      - maxminio
+      - postgres
+      - minio
     volumes:
       - /var/run/dbus:/var/run/dbus
 
-  maxfrontend:
+  frontend:
     image: getmaxun/maxun-frontend:latest
     #env_file: .env
     environment:
-      - SERVICE_FQDN_MAXFRONTEND_5173
-      - MINIO_ENDPOINT=maxminio
+      - SERVICE_FQDN_FRONTEND_5173
+      - MINIO_ENDPOINT=minio
       - MINIO_PORT=${MINIO_PORT:-9000}
       - MINIO_CONSOLE_PORT=${MINIO_CONSOLE_PORT:-9001}
       - MINIO_ACCESS_KEY=${SERVICE_USER_MINIO}
@@ -89,15 +89,15 @@ services:
       - DB_PASSWORD=${SERVICE_PASSWORD_POSTGRES}
       - DB_HOST=postgres
       - DB_PORT=5432
-      - PUBLIC_URL=$SERVICE_FQDN_MAXFRONTEND
-      - BACKEND_URL=$SERVICE_FQDN_MAXBACKEND
-      - VITE_BACKEND_URL=$SERVICE_FQDN_MAXBACKEND
-      - VITE_PUBLIC_URL=$SERVICE_FQDN_MAXFRONTEND
+      - PUBLIC_URL=$SERVICE_FQDN_FRONTEND
+      - BACKEND_URL=$SERVICE_FQDN_BACKEND
+      - VITE_BACKEND_URL=$SERVICE_FQDN_BACKEND
+      - VITE_PUBLIC_URL=$SERVICE_FQDN_FRONTEND
       - MAXUN_TELEMETRY=${MAXUN_TELEMETRY:-false}
       - CI=true
       - CONTAINER=true
     depends_on:
-      - maxbackend
+      - backend
 
   browser:
     build:
